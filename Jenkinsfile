@@ -1,47 +1,47 @@
 pipeline {
     agent any
 
+    // Task 9: Adding Build Parameters
+    parameters {
+        string(name: 'PERSON', defaultValue: 'Faizan', description: 'Who is running this build?')
+        choice(name: 'ENVIRONMENT', choices: ['Staging', 'Production', 'Testing'], description: 'Select the target environment')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Check to run the Test stage')
+    }
+
     environment {
         APP_NAME = "MySecureApp"
     }
 
     stages {
+        stage('Parameters Info') {
+            steps {
+                echo "Build triggered by: ${params.PERSON}"
+                echo "Target Environment: ${params.ENVIRONMENT}"
+            }
+        }
         stage('Build') {
             steps {
-                // Using a custom env variable
-                echo "Starting Build for ${env.APP_NAME}"
-                // Using built-in env variables
-                echo "Running Build Number: ${env.BUILD_NUMBER}"
+                echo "Building ${env.APP_NAME} version ${env.BUILD_NUMBER}..."
             }
         }
         stage('Test') {
             when {
-                branch 'main'
+                expression { params.RUN_TESTS == true }
             }
             steps {
-                echo "Testing on Job: ${env.JOB_NAME}"
-            }
-        }
-        stage('Environment Info') {
-            steps {
-                // Accessing more built-in variables
-                echo "--- Jenkins System Info ---"
-                echo "Build URL: ${env.BUILD_URL}"
-                echo "Node Name: ${env.NODE_NAME}"
-                echo "Workspace Path: ${env.WORKSPACE}"
-                echo "Branch: ${env.BRANCH_NAME}"
+                echo "Running tests in ${params.ENVIRONMENT} environment..."
             }
         }
         stage('Deploy') {
             steps {
-                echo "Deploying Build #${env.BUILD_NUMBER} to production..."
+                echo "Deploying to ${params.ENVIRONMENT}..."
             }
         }
     }
 
     post {
         always {
-            echo "Finished execution of ${env.JOB_NAME} build ${env.BUILD_NUMBER}"
+            echo "Finished execution for ${params.PERSON}"
         }
     }
 }

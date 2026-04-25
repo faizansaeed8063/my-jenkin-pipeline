@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Build') {
             steps {
@@ -8,6 +8,7 @@ pipeline {
             }
         }
         stage('Test') {
+            // Task 5: Only run this stage on the main branch
             when {
                 branch 'main'
             }
@@ -22,6 +23,7 @@ pipeline {
         }
     }
 
+    // Task 4: Post-build feedback
     post {
         always {
             echo 'This will always run'
